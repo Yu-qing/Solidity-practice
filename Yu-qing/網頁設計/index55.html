@@ -1,0 +1,101 @@
+<html>
+
+
+<head>
+
+    <title> 天天分紅 當機版</title>
+
+</head>
+
+<body>
+    <h1>天天分紅</h1>
+
+	<p>我的地址：<span id="my_address"></span></p>
+	<p>我的餘額：<span id="my_balance"></span></p>
+    
+    <hr/>
+    
+	<p>目前合約總獎池：<span id="total_balance"></span></p>
+	
+    <p>第一位參與地址：<span id="join_address"></span></p>
+
+    <button id="invest" onclick="invest()">購買 - 投資</button>
+    <br/>
+    <button id="distribute" onclick="distribute()">分紅</button>
+    <br/>
+    
+    <!-- 練習打出圖片與斷行 -->
+
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+
+    <script>
+		if (typeof web3 !== 'undefined') {
+		  web3 = new Web3(web3.currentProvider);
+		} 
+        else {
+		  // Set the provider you want from Web3.providers
+		  web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/a14e829510004e7485002e5f738cd954"));
+		}
+
+		var myContract;
+        var coinbase;
+
+		async function printPostsToConsole() {
+
+            //取得帳號 metamask才可用
+            coinbase = await web3.eth.getCoinbase();
+            $("#my_address").text(coinbase);
+			
+
+            //取得帳號餘額 metamask才可用
+            var balance = await web3.eth.getBalance(coinbase);
+            $("#my_balance").text(web3.utils.fromWei(balance));  //wei 轉換成 ether web3.utils.fromWei(balance)
+
+            
+            var contract_address = "0x85905ad1F509124Ef7E00c4677FA583960Bb4A50";
+            
+            var contract_abi = [ { "constant": false, "inputs": [], "name": "distribute", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [], "name": "invest", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "inputs": [], "payable": false, "stateMutability": "nonpayable", "type": "constructor" }, { "constant": true, "inputs": [ { "name": "", "type": "uint256" } ], "name": "investors", "outputs": [ { "name": "", "type": "address" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [ { "name": "", "type": "uint256" } ], "name": "investorTokens", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "owner", "outputs": [ { "name": "", "type": "address" } ], "payable": false, "stateMutability": "view", "type": "function" } ];
+            
+			myContract = new web3.eth.Contract(contract_abi, contract_address);
+            
+            var balance_contract = await web3.eth.getBalance(contract_address);
+            $("#total_balance").text(balance_contract);
+            
+			//取得合約餘額
+            //var contract_balance = await myContract.methods.myMethod(123).call({from: '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe'});
+            
+            var contract_investor = await myContract.methods.investors(0).call({from: '0xde0B295669a9FD93d5F28D9Ec85E40f4cb697BAe'});
+//          //alert(contract_investor);
+            
+			//第一個購買地址
+            $("#join_address").text(contract_investor);
+
+
+		};
+
+		printPostsToConsole();
+
+        function invest(){
+			//購買
+			myContract.methods.invest().send({from: coinbase, value: "100000000000000000"})
+			 .then(function(receipt){
+                 alert("投資成功");
+			     location.reload();
+			 });
+        }
+        
+        function distribute(){
+            myContract.methods.distribute().send({from: coinbase})
+            .then(function(receipt){
+                 alert("分紅完成");
+			     location.reload();
+			 });
+        }
+
+
+    </script>
+</body>
+
+</html>
