@@ -1,0 +1,149 @@
+<html>
+    
+<head>
+    <meta charset="utf-8">
+    <title>猜拳遊戲</title>
+</head>
+    
+<body>
+    <!--排版-->
+    <a style="position:relative; left: 20px; font-size: 20px; text-decoration:none;"
+       href="http://18.224.45.122/index.html">
+        <img src="home.png"/ align=top>首頁
+    </a>
+    <a style="position:relative; left: 1250px; font-size: 20px; text-decoration:none;"
+       href="https://rinkeby.etherscan.io/address/0x7182a46521772e8f79d99ff508ea365f632a92df">
+        <img src="book.png"/ align=top>合約連結
+    </a>
+    
+    <h1 align="center">猜拳遊戲</h1>  
+    
+    <pre>
+        <font size=5>                              我的地址：<span id="my_address">none</span></font>
+    </pre>
+	<pre>
+        <font size=5>                              我的餘額：<span id="my_balance">0</span> ETH</font>
+    </pre>
+    <pre>
+        <font size=5>                              目前合約總獎池：<span id="total_balance">0</span> ETH</font>
+    </pre>
+    
+    <hr/>
+    <button id="stone" onclick="stone()" style="position:relative; left: 450px; top: 20px; ">
+        <img src="stone.png" />
+    </button>
+    <button id="scissor" onclick="scissor()" style="position:relative; left: 600px; top: 20px">
+        <img src="scissor.png" />
+    </button>
+    <button id="paper" onclick="paper()" style="position:relative; left: 750px; top: 20px">
+        <img src="paper.png" />
+    </button>
+    <br>
+    <button id="donate" onclick="donate()"
+            style="position:relative; left: 630px; top: 60px; width:250px; height:60px; font-size:25px">
+        <b> 丟錢下去獎金池!!!</b>
+    </button>
+    
+    <p align="center" 
+       style="position:relative; top: 60px; font-size: 25px;" >
+        <b>由於排版問題</b>
+        <br>
+        <b>---請將系統版面調至125% 瀏覽器調至100%----</b>
+        <br>
+        <b>- or 將系統版面調至100% 瀏覽器調至125%----</b>
+    </p>
+    
+    
+    <!--script操作-->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+
+	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+
+    <script>ㄉ
+		if (typeof web3 !== 'undefined') {
+		  web3 = new Web3(web3.currentProvider);
+		} 
+        else {
+		  // Set the provider you want from Web3.providers
+		  web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/a14e829510004e7485002e5f738cd954"));
+		}
+        
+        var contract_address = "0x7182a46521772E8f79D99fF508Ea365f632A92DF";
+		var myContract;
+        var coinbase;
+        var balance_contract;
+        
+		async function printPostsToConsole() {
+
+            //取得帳號 metamask才可用
+            coinbase = await web3.eth.getCoinbase();
+            $("#my_address").text(coinbase);
+			
+
+            //取得帳號餘額 metamask才可用
+            var balance = await web3.eth.getBalance(coinbase);
+            $("#my_balance").text(web3.utils.fromWei(balance));  //wei 轉換成 ether web3.utils.fromWei(balance)
+            
+            var contract_abi = [ { "constant": false, "inputs": [ { "name": "myid", "type": "bytes32" }, { "name": "result", "type": "string" } ], "name": "__callback", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "_queryId", "type": "bytes32" }, { "name": "_result", "type": "string" }, { "name": "_proof", "type": "bytes" } ], "name": "__callback", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [], "name": "Paper", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [], "name": "Rock", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [], "name": "Scissor", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "inputs": [], "payable": true, "stateMutability": "payable", "type": "constructor" }, { "payable": true, "stateMutability": "payable", "type": "fallback" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "", "type": "bytes" } ], "name": "newRandomNumber_bytes", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "", "type": "uint256" } ], "name": "newRandomNumber_uint", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "", "type": "address" } ], "name": "win", "type": "event" }, { "constant": true, "inputs": [], "name": "new_random", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" } ];
+            
+			myContract = new web3.eth.Contract(contract_abi, contract_address);
+            
+            balance_contract = await web3.eth.getBalance(contract_address);
+            $("#total_balance").text(web3.utils.fromWei(balance_contract));
+		};
+
+		printPostsToConsole();
+        
+        function stone(){
+			myContract.methods.Rock().send({from: coinbase, value: "10000000000000000"})
+			 .then(function(receipt){
+                 judg();
+			 });
+        }
+        
+        function scissor(){
+            myContract.methods.Scissor().send({from: coinbase, value: "10000000000000000"})
+            .then(function(receipt){
+                 judg();
+                 reload();
+			 });
+        }
+        
+        function paper(){
+			myContract.methods.Paper().send({from: coinbase, value: "10000000000000000"})
+			 .then(function(receipt){
+                judg();
+			 });
+        }
+        
+        async function judg(){
+            var temp = await web3.eth.getBalance(contract_address);
+            if(balance_contract > temp){
+                    alert("WIN");
+            }
+            else{
+                    alert("NOT WIN");
+            }
+        }
+        
+        async function reload(){
+            var balance = await web3.eth.getBalance(coinbase);
+            $("#my_balance").text(web3.utils.fromWei(balance));
+            
+            balance_contract = await web3.eth.getBalance(contract_address);
+            $("#total_balance").text(web3.utils.fromWei(balance_contract));
+        }
+        
+        function donate(){
+            web3.eth.sendTransaction({from: coinbase,to:"0x7182a46521772E8f79D99fF508Ea365f632A92DF", 
+                                      value: "1000000000000000000"})
+            .then(function(receipt){
+                 alert("donate完成\n感謝爸爸~");
+                 reload();
+			 });
+        }
+
+    </script>
+</body>
+    
+</html>
