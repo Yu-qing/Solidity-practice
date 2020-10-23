@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    <!-- AOS animate -->
+    <link rel="stylesheet" href="https://unpkg.com/aos@next/dist/aos.css" />
+
+    <!-- Customized css -->
+    <link href="./static/css/main.css" rel="stylesheet">
+    <!-- Jquery -->
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+    <!-- Web3 -->
+    <script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+
+    <title> Fomo3D </title>
+
+</head>
+<body>
+    <style>
+        .container.custom-container-width {
+            max-width: 1350px;
+        }
+    </style>
+
+    <!--最上面-->
+    <section>
+        <nav class="navbar navbar-expand-lg navbar-light bg-light">
+            <div>
+                <a style="position:relative; left: 20px; font-size: 20px; text-decoration:none;"
+                   href="http://18.224.45.122/index.html">
+                    <img src="home.png" / align=top>首頁
+                </a>
+                <a style="position:relative; left: 650px; font-size: 20px; text-decoration:none;">
+                    <img src="eth.png" / align=top>Fomo3D
+                </a>
+                <a style="position:relative; left: 1180px; font-size: 20px; text-decoration:none;"
+                   href="https://rinkeby.etherscan.io/address/0x9b130fBbbbB681C40d93e6c87ca3e1E81b641B8A">
+                    <img src="book.png" / align="top">合約連結
+                </a>
+            </div>
+        </nav>
+    </section>
+    <!-- content -->
+    <section>
+        <div class="container custom-container-width">
+            <div class="row">
+                <div class="col">
+                    <div class="card distant ">
+                        <div class="card-body text-center " style="font-size:23px;">
+                            <p>第<span id="round"></span>輪</p>
+                            <p><span id="time">剩餘時間 : </span></p>
+                            <div class="input-group">
+                                <input id="input_buy" type="text" placeholder="輸入"  style="width:320px;">
+                                <div class="input-group-append">
+                                    <span class="input-group-text" style="font-size:25px; width:80px">ETH</span>
+                                    <select id="select_team">
+                                        <option value=0>天使</option>
+                                        <option value=1>惡魔</option>
+                                    </select>
+                                    <button onclick="buy()" type="button" class="btn btn-primary" id=" buy" style="font-size:25px; width:80px">購買</button>
+                                </div>
+                            </div>
+                            <div class="text-left"><p>彩金池 : <span id="lottery_pool"></span> ETH</p></div>
+                            <div class="text-left"><p>空投池 : <span id="airdrop_pool"></span> ETH</p></div>
+                            <div class="text-left"><p>目前市場價 : <span id="avg_price"></span> ETH</p></div>
+                            <div class="text-left"><p>最後交易人 : <span id="last_investor"></span> </p></div>
+                            <hr />
+                            <div><p>紀錄</p></div>
+                            <div class="text-left"><p>贏家 : <span id="winner"></span> </p></div>
+                            <div class="text-left"><p>獲得獎金 : <span id="winner_gain"></span> </p></div>
+                            <div class="text-left"><p>空投贏家 : <span id="air_winner"></span> </p></div>
+                            <div class="text-left"><p>空投獲得獎金 : <span id="air_winner_gain"></span> </p></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col" style="font-size:20px;">
+                    <p align="center" style="font-size:30px"><b>我的資訊</b></p>
+                    <ul class="card distant ">
+                        <table class="table">
+                            <tbody>
+                                <tr>
+                                    <th scope="row">投資者</th>
+                                    <td id="my_address"> </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">餘額</th>
+                                    <td id="my_balance"> </td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">擁有的鑰匙</th>
+                                    <td id="my_allkey"></td>
+                                </tr>
+                                <tr>
+                                    <th scope="row">空投概率</th>
+                                    <td id="airdrop_prob"></td>
+                                </tr>
+
+                            </tbody>
+                        </table>
+
+                        <div>
+                            <input type="text" placeholder="輸入keynumber查詢隊伍" id="input_search">
+                            <button onclick="search()" type="button" class="btn btn-primary" id="search">查詢<span id="search_team"></span></button>
+                        </div>
+                        <br />
+
+                        <p align="center" style="position:relative; top: 15px">*可選擇忽略該次分紅　但錢將納入遊戲方*</p>
+                        <button onclick="distribute()" type="button" class="btn btn-primary" id="distribute">分紅給隊友</button>
+
+                        <p align="center" style="position:relative; top: 15px">*可選擇拒絕抽空投　只會保留一次機會*</p>
+                        <button onclick="airdrop()" type="button" class="btn btn-primary" id="airdrop">空投</button>
+
+                        <p align="center" style="position:relative; top: 15px">*限贏家執行　若非贏家則會失敗　不要浪費錢*</p>
+                        <button onclick="time_poof()" type="button" class="btn btn-primary" id="time_poof">遊戲結算</button>
+
+                        <p align="center" style="position:relative; top: 15px">*限合約者開啟遊戲*</p>
+                        <button onclick="play()" type="button" class="btn btn-primary" id="play">新一局</button>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+</body>
+</html>
+<script>
+
+    if (typeof web3 !== 'undefined') {
+	web3 = new Web3(web3.currentProvider);
+	}
+	else {
+	// Set the provider you want from Web3.providers
+	web3 = new Web3(new Web3.providers.HttpProvider("https://rinkeby.infura.io/v3/a14e829510004e7485002e5f738cd954"));
+	}
+
+	var myContract;
+	var coinbase;
+	var balance_contract;
+    var t;
+    var tt;
+    var last;
+    var prob;
+
+    async function printPostsToConsole() {
+
+        
+
+        //取得帳號
+		coinbase = await web3.eth.getCoinbase();
+		$("#my_address").text(coinbase);
+        
+        //取得帳號餘額
+		var balance = await web3.eth.getBalance(coinbase);
+		$("#my_balance").text(web3.utils.fromWei(balance));  //wei 轉換成 ether web3.utils.fromWei(balance)
+
+        var contract_address = "0x9b130fBbbbB681C40d93e6c87ca3e1E81b641B8A";
+        var contract_abi = [ { "constant": false, "inputs": [ { "name": "myid", "type": "bytes32" }, { "name": "result", "type": "string" } ], "name": "__callback", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "_queryId", "type": "bytes32" }, { "name": "_result", "type": "string" }, { "name": "_proof", "type": "bytes" } ], "name": "__callback", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [], "name": "airdrop", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [ { "name": "team", "type": "uint256" } ], "name": "buy_key", "outputs": [], "payable": true, "stateMutability": "payable", "type": "function" }, { "constant": false, "inputs": [], "name": "distribute", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [], "name": "kill", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [], "name": "play", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "constant": false, "inputs": [], "name": "time_proof", "outputs": [], "payable": false, "stateMutability": "nonpayable", "type": "function" }, { "inputs": [], "payable": true, "stateMutability": "payable", "type": "constructor" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "round", "type": "uint256" }, { "indexed": false, "name": "winner", "type": "address" }, { "indexed": false, "name": "money", "type": "uint256" } ], "name": "winner", "type": "event" }, { "anonymous": false, "inputs": [ { "indexed": false, "name": "winner", "type": "address" }, { "indexed": false, "name": "money", "type": "uint256" } ], "name": "airdrop_winner", "type": "event" }, { "constant": true, "inputs": [], "name": "airdrop_of_prob", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "contractOwner", "outputs": [ { "name": "", "type": "address" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "game_start", "outputs": [ { "name": "", "type": "bool" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "key_of_owner", "outputs": [ { "name": "", "type": "uint256[]" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [ { "name": "keyID", "type": "uint256" } ], "name": "key_of_team", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "last_buyer", "outputs": [ { "name": "", "type": "address" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "market_price", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "pool_Of_air", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "pool_Of_lottery", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "round_num", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "round_tt", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "start_time", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [ { "name": "", "type": "uint256" } ], "name": "team_key", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "tt", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "winAirMoney", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "winAirPerson", "outputs": [ { "name": "", "type": "address" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "winMoney", "outputs": [ { "name": "", "type": "uint256" } ], "payable": false, "stateMutability": "view", "type": "function" }, { "constant": true, "inputs": [], "name": "winPerson", "outputs": [ { "name": "", "type": "address" } ], "payable": false, "stateMutability": "view", "type": "function" } ]
+        myContract = new web3.eth.Contract(contract_abi, contract_address);
+        
+        //第幾輪
+        var round =await myContract.methods.round_num().call();
+        $("#round").text(round);
+        
+        //彩金池
+        var lottery_pool = await myContract.methods.pool_Of_lottery().call();
+        $("#lottery_pool").text(web3.utils.fromWei(lottery_pool));
+
+        //空投池
+        var airdrop_pool = await myContract.methods.pool_Of_air().call();
+        $("#airdrop_pool").text(web3.utils.fromWei(airdrop_pool));
+
+        //目前市場價
+        var  market_price = await myContract.methods.market_price().call();
+        $("#avg_price").text(web3.utils.fromWei(market_price));
+
+        //最後交易人
+        last = await myContract.methods.last_buyer().call();
+        $("#last_investor").text(last);
+
+        //上一場贏家
+        var winner = await myContract.methods.winPerson().call();
+        $("#winner").text(winner);
+
+        //獲得獎金
+        var winner_gain = await myContract.methods.winMoney().call();
+        $("#winner_gain").text(winner_gain);
+
+        //上一場空投贏家
+        var air_winner = await myContract.methods.winAirPerson().call();
+        $("#air_winner").text(air_winner);
+
+        //空投獲得獎金
+        var air_winner_gain = await myContract.methods.winAirMoney().call();
+        $("#air_winner_gain").text(air_winner_gain);
+    
+        //擁有的鑰匙
+        var myallkey =  await myContract.methods.key_of_owner().call({from : coinbase});
+        $("#my_allkey").text(myallkey);
+
+        //空投概率
+        prob = await myContract.methods.airdrop_of_prob().call( {from : coinbase});
+        var p = prob;
+        if(prob % 5 != 0){
+            p = p-1;
+        }
+        $("#airdrop_prob").text(p+'%');
+        
+
+        t = await myContract.methods.round_tt().call({from : coinbase});
+        tt = await myContract.methods.tt().call({from : coinbase});
+    }
+
+    printPostsToConsole();
+    
+    var sec = tt;
+    if(t>tt){
+        sec = t-tt;
+    }
+    else{
+        sec=0;
+    }
+    
+    //購買
+    async function buy(){
+        if(sec < 0){
+            alert("game is over");
+            return 0;
+        }
+            
+        var input = document.getElementById("input_buy").value;
+        input = web3.utils.toWei(input);
+        var select = document.getElementById("select_team").value;
+        myContract.methods.buy_key(select).send({from: coinbase, value: input}).then(function(receipt){
+			    alert("購買成功！");
+                $("#airdrop").text("空投(可抽)");
+                $("#distribute").text("分紅給隊友(可)");
+                printPostsToConsole();
+        });
+    }
+        
+    async function distribute(){
+            var select = await document.getElementById("select_team").value;
+            var team_num = await myContract.methods.team_key(select).call({from : coinbase});
+            
+            if(team_num >1){
+                myContract.methods.distribute().send({from : coinbase}).then(function(receipt){
+                    $("#distribute").text("分紅給隊友");
+                    alert("分紅完成")
+                    printPostsToConsole();
+                });
+            }
+            
+    }
+
+    function airdrop(){
+        if(prob%5 != 0){
+            alert("你沒有抽獎資格");
+            return 0;
+        }
+        myContract.methods.airdrop().send({from : coinbase}).then(function(receipt){
+                $("#airdrop").text("空投");
+                alert("抽獎結束\n請自行上線查詢");
+                printPostsToConsole();
+        });
+    }
+
+    function time_poof(){
+        myContract.methods.time_proof().send({from : coinbase}).then(function(receipt){
+                alert("結算結束");
+        });
+    }
+
+    function play(){
+        myContract.methods.play().send({from : coinbase}).then(function(receipt){
+                printPostsToConsole();
+        });
+    }
+    
+    //查詢
+    async function search(){
+        var input = document.getElementById("input_search").value;
+        var team = await myContract.methods.key_of_team(input).call({from : coinbase });
+        if(team==0){
+            alert("天使");
+        }
+        else{
+            alert("惡魔");
+        }
+    }
+
+    
+    
+    
+    //時間
+    function getCurrentTime() {
+    var current = new Date();
+    var currentHour = current.getHours();
+    var currentMinute = current.getMinutes();
+    var currentSecond = current.getSeconds();
+    setTimeout("time()",1000);
+    }
+    setInterval("getCurrentTime()",1000);
+
+    //倒數
+    async function time(){
+        var round = await myContract.methods.round_tt().call({from : coinbase});
+        var t_t = await myContract.methods.tt().call({from : coinbase});
+
+        if(tt != t_t || round != t){
+            tt = t_t;
+            t = round;
+
+            if(t>tt){
+                sec = t-tt;
+            }
+            else{
+                sec=0;
+            }
+        }
+        
+        //遊戲結束
+        if(sec < 0){
+            document.getElementById('time').innerHTML = '剩餘時間 : '+ 0 + '秒';
+            printPostsToConsole();
+        }
+        else{
+            document.getElementById('time').innerHTML = '剩餘時間 : '+ sec + '秒';
+            sec = sec - 1;
+        }
+    }
+
+    
+</script>
