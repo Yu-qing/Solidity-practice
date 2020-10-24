@@ -1,0 +1,34 @@
+<html>
+
+<body>
+    <h1>我的第一個標題</h1>
+    <p>我的第一個段落</p>
+
+
+    <!-- 練習打出圖片與斷行 -->
+
+	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.36/dist/web3.min.js" integrity="sha256-nWBTbvxhJgjslRyuAKJHK+XcZPlCnmIAAMixz6EefVk=" crossorigin="anonymous"></script>
+	
+	<script>
+		if (typeof web3 !== 'undefined') {
+		  web3 = new Web3(web3.currentProvider);
+		} else {
+		  // Set the provider you want from Web3.providers
+		  web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+		}
+
+
+		async function printPostsToConsole() {
+
+			var coinbase = await web3.eth.getCoinbase();
+			var balance = await web3.eth.getBalance(coinbase);
+			alert(balance);
+		};
+
+		printPostsToConsole();
+
+
+    </script>
+</body>
+
+</html>
