@@ -2,5 +2,7 @@
 
 主頁 : index 
 
-猜拳遊戲 : gambling
+猜拳遊戲 : gambling.sol
+
+簡易Fomo3D : greedy_599.sol
 
